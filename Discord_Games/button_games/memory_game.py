@@ -21,8 +21,8 @@ class MemoryButton(discord.ui.Button):
 
     async def callback(self, interaction: discord.Interaction) -> None:
         
+        self.emoji = self.value
         if opened := self.view.opened:
-            self.emoji = self.value
             self.disabled = True
             await interaction.response.edit_message(view=self.view)
 
@@ -43,7 +43,6 @@ class MemoryButton(discord.ui.Button):
                 if all(button.disabled for button in self.view.children):
                     return await interaction.message.edit(content='Game Over, Congrats!', view=self.view)
         else:
-            self.emoji = self.value
             self.view.opened = self
             self.disabled = True
             return await interaction.response.edit_message(view=self.view)
