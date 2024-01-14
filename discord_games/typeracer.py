@@ -116,9 +116,7 @@ class TypeRacer:
                 }
             )
 
-            self.embed.description += (
-                self.format_line(len(winners), winners[len(winners) - 1]) + "\n"
-            )
+            self.embed.description += self.format_line(len(winners), winners[-1]) + "\n"
             await self.message.edit(embed=self.embed)
 
             await message.add_reaction(self.EMOJI_MAP[len(winners)])
@@ -190,14 +188,13 @@ class TypeRacer:
         if not words_mode:
             async with aiohttp.ClientSession() as session:
                 async with session.get(self.SENTENCE_URL) as r:
-                    if r.ok:
-                        text: dict[str, Any] = await r.json()
-                        text = text.get("content", "")
-                    else:
+                    if not r.ok:
                         raise RuntimeError(
                             f"HTTP request raised an error: {r.status}; {r.reason}"
                         )
 
+                    text: dict[str, Any] = await r.json()
+                    text = text.get("content", "")
         else:
             with open(parent / "assets/words.txt", "r") as wordsfp:
                 words = wordsfp.read().splitlines()

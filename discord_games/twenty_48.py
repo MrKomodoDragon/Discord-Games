@@ -123,12 +123,11 @@ class Twenty48:
         return [[board[i][j] for i in range(4)] for j in range(4)]
 
     def _merge(self, board: Board) -> Board:
-        for i in range(4):
-            for j in range(3):
-                tile = board[i][j]
-                if tile == board[i][j + 1] and tile != 0:
-                    board[i][j] *= 2
-                    board[i][j + 1] = 0
+        for i, j in itertools.product(range(4), range(3)):
+            tile = board[i][j]
+            if tile == board[i][j + 1] and tile != 0:
+                board[i][j] *= 2
+                board[i][j + 1] = 0
         return board
 
     def _compress(self, board: Board) -> Board:
@@ -183,28 +182,25 @@ class Twenty48:
             returns whether or not the game is lost
         """
         board = self.board
-        zeroes = [
-            (j, i) for j, sub in enumerate(board) for i, el in enumerate(sub) if el == 0
-        ]
-
-        if not zeroes:
-            return True
-        else:
+        if zeroes := [
+            (j, i)
+            for j, sub in enumerate(board)
+            for i, el in enumerate(sub)
+            if el == 0
+        ]:
             i, j = random.choice(zeroes)
             board[i][j] = 2
             return False
+        else:
+            return True
 
     def number_to_emoji(self) -> str:
         board = self.board
-        game_string = ""
-
         emoji_array = [
             [self._conversion.get(str(l), f"`{l}` ") for l in row] for row in board
         ]
 
-        for row in emoji_array:
-            game_string += "".join(row) + "\n"
-        return game_string
+        return "".join("".join(row) + "\n" for row in emoji_array)
 
     def check_win(self) -> bool:
         flattened = itertools.chain(*self.board)
@@ -237,9 +233,7 @@ class Twenty48:
                     )
 
                     if tile != "0":
-                        text_fill = (
-                            self.DARK_CLR if tile in ("2", "4") else self.LIGHT_CLR
-                        )
+                        text_fill = self.DARK_CLR if tile in {"2", "4"} else self.LIGHT_CLR
                         cursor.text(
                             (x + SQ / 2, y + SQ / 2),
                             tile,

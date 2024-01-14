@@ -80,11 +80,10 @@ class NumButton(discord.ui.Button["NumView"]):
     async def callback(self, interaction: discord.Interaction) -> None:
         assert self.view
 
-        if self.label == "Cancel" and interaction.message:
-            await interaction.message.delete()
-            return self.view.stop()
-        else:
+        if self.label != "Cancel" or not interaction.message:
             return await interaction.response.send_modal(NumModal(self.view))
+        await interaction.message.delete()
+        return self.view.stop()
 
 
 class NumView(BaseView):

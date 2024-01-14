@@ -71,17 +71,15 @@ class BattleshipInput(discord.ui.Modal, title="Input a coordinate"):
             return await interaction.response.send_message(
                 f"`{content}` is not a valid coordinate!", ephemeral=True
             )
-        else:
-            raw, coords = game.get_coords(content)
-            self.view.update_views()
+        raw, coords = game.get_coords(content)
+        self.view.update_views()
 
-            if coords in self.view.player_board.moves:
-                return await interaction.response.send_message(
-                    "You've attacked this coordinate before!", ephemeral=True
-                )
-            else:
-                await interaction.response.defer()
-                return await game.process_move(raw, coords)
+        if coords in self.view.player_board.moves:
+            return await interaction.response.send_message(
+                "You've attacked this coordinate before!", ephemeral=True
+            )
+        await interaction.response.defer()
+        return await game.process_move(raw, coords)
 
 
 class BattleshipButton(WordInputButton):
@@ -90,43 +88,45 @@ class BattleshipButton(WordInputButton):
     async def callback(self, interaction: discord.Interaction) -> None:
         game = self.view.game
 
-        if self.label == "Cancel":
-            player = self.view.player
-            other_player = (
-                game.player2
-                if interaction.user == game.player1.player
-                else game.player1
-            )
-
-            if not player.approves_cancel:
-                player.approves_cancel = True
-
-            await interaction.response.defer()
-
-            if not other_player.approves_cancel:
-                await player.send("- Waiting for opponent to approve cancellation -")
-                await other_player.send(
-                    "Opponent wants to cancel, press the `Cancel` button if you approve."
-                )
-            else:
-                game.view1.disable_all()
-                game.view2.disable_all()
-
-                await game.player1.send("**GAME OVER**, Cancelled")
-                await game.player2.send("**GAME OVER**, Cancelled")
-
-                await game.message1.edit(view=game.view1)
-                await game.message2.edit(view=game.view2)
-
-                game.view1.stop()
-                return game.view2.stop()
-        else:
-            if interaction.user != game.turn.player:
-                return await interaction.response.send_message(
+        if self.label != "Cancel":
+            return (
+                await interaction.response.send_message(
                     "It is not your turn yet!", ephemeral=True
                 )
-            else:
-                return await interaction.response.send_modal(BattleshipInput(self.view))
+                if interaction.user != game.turn.player
+                else await interaction.response.send_modal(
+                    BattleshipInput(self.view)
+                )
+            )
+        player = self.view.player
+        other_player = (
+            game.player2
+            if interaction.user == game.player1.player
+            else game.player1
+        )
+
+        if not player.approves_cancel:
+            player.approves_cancel = True
+
+        await interaction.response.defer()
+
+        if not other_player.approves_cancel:
+            await player.send("- Waiting for opponent to approve cancellation -")
+            await other_player.send(
+                "Opponent wants to cancel, press the `Cancel` button if you approve."
+            )
+        else:
+            game.view1.disable_all()
+            game.view2.disable_all()
+
+            await game.player1.send("**GAME OVER**, Cancelled")
+            await game.player2.send("**GAME OVER**, Cancelled")
+
+            await game.message1.edit(view=game.view1)
+            await game.message2.edit(view=game.view2)
+
+            game.view1.stop()
+            return game.view2.stop()
 
 
 class CoordButton(discord.ui.Button["BattleshipView"]):
@@ -222,7 +222,7 @@ class SetupInput(discord.ui.Modal):
         super().__init__(title=f"{self.ship} Setup")
 
         self.start_coord = discord.ui.TextInput(
-            label=f"Enter the starting coordinate",
+            label="Enter the starting coordinate",
             placeholder="ex: a8",
             style=discord.TextStyle.short,
             required=True,
@@ -231,7 +231,7 @@ class SetupInput(discord.ui.Modal):
         )
 
         self.is_vertical = discord.ui.TextInput(
-            label=f"Do you want it to be vertical? (y/n)",
+            label="Do you want it to be vertical? (y/n)",
             placeholder='"y" or "n"',
             style=discord.TextStyle.short,
             required=True,
@@ -257,7 +257,7 @@ class SetupInput(discord.ui.Modal):
 
         if vertical not in ("y", "n"):
             return await interaction.response.send_message(
-                f"Response for `vertical` must be either `y` or `n`", ephemeral=True
+                "Response for `vertical` must be either `y` or `n`", ephemeral=True
             )
 
         vertical = vertical != "y"

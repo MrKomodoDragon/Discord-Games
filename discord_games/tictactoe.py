@@ -72,10 +72,7 @@ class Tictactoe:
         }
 
     def board_string(self) -> str:
-        board = ""
-        for row in self.board:
-            board += "".join(row) + "\n"
-        return board
+        return "".join("".join(row) + "\n" for row in self.board)
 
     def make_embed(self, *, game_over: bool = False) -> discord.Embed:
         embed = discord.Embed(color=self.embed_color)
@@ -89,15 +86,14 @@ class Tictactoe:
     def make_move(self, emoji: str, user: discord.User) -> list:
         if emoji not in self._controls:
             raise KeyError("Provided emoji is not one of the valid controls")
-        else:
-            x, y = self._conversion[emoji]
-            piece = self.player_to_emoji[user]
-            self.board[x][y] = piece
+        x, y = self._conversion[emoji]
+        piece = self.player_to_emoji[user]
+        self.board[x][y] = piece
 
-            self.turn = self.circle if user == self.cross else self.cross
-            self._conversion.pop(emoji)
-            self._controls.remove(emoji)
-            return self.board
+        self.turn = self.circle if user == self.cross else self.cross
+        self._conversion.pop(emoji)
+        self._controls.remove(emoji)
+        return self.board
 
     def is_game_over(self, *, tie: bool = False) -> bool:
         for possibility in self._WINNERS:
@@ -108,10 +104,7 @@ class Tictactoe:
                 self.winning_indexes = possibility
                 return True
 
-        if not self._controls or tie:
-            return True
-
-        return False
+        return not self._controls or tie
 
     async def start(
         self,

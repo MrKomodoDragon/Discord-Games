@@ -43,12 +43,11 @@ class HangmanInput(discord.ui.Modal, title="Make a guess!"):
         else:
             await game.make_guess(content)
 
-            if await game.check_win():
-                self.view.disable_all()
-                await interaction.response.edit_message(view=self.view)
-                return self.view.stop()
-            else:
+            if not await game.check_win():
                 return await interaction.response.defer()
+            self.view.disable_all()
+            await interaction.response.edit_message(view=self.view)
+            return self.view.stop()
 
 
 class HangmanButton(WordInputButton):
@@ -60,15 +59,13 @@ class HangmanButton(WordInputButton):
             return await interaction.response.send_message(
                 "This isn't your game!", ephemeral=True
             )
-        else:
-            if self.label == "Cancel":
-                await interaction.response.send_message(
-                    f"Game Over! the word was: **{game.word}**"
-                )
-                await interaction.message.delete()
-                return self.view.stop()
-            else:
-                return await interaction.response.send_modal(HangmanInput(self.view))
+        if self.label != "Cancel":
+            return await interaction.response.send_modal(HangmanInput(self.view))
+        await interaction.response.send_message(
+            f"Game Over! the word was: **{game.word}**"
+        )
+        await interaction.message.delete()
+        return self.view.stop()
 
 
 class HangmanView(BaseView):

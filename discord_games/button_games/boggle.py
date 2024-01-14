@@ -32,14 +32,13 @@ class BoggleButton(discord.ui.Button["BoggleView"]):
             else:
                 beside_current = [(self.row, self.col)]
 
-            if (self.row, self.col) in beside_current:
-                game.current_word += self.label
-                game.indices.append((self.row, self.col))
-
-                self.style = game.selected_style
-            else:
+            if (self.row, self.col) not in beside_current:
                 return await interaction.response.defer()
 
+            game.current_word += self.label
+            game.indices.append((self.row, self.col))
+
+            self.style = game.selected_style
         elif (self.row, self.col) == game.indices[-1]:
             self.style = game.button_style
             game.current_word = game.current_word[:-1]

@@ -41,11 +41,7 @@ class CountryGuesser:
         self.is_flags = is_flags
         self.hard_mode = hard_mode
 
-        if self.is_flags:
-            self.light_mode: bool = False
-        else:
-            self.light_mode: bool = light_mode
-
+        self.light_mode: bool = False if self.is_flags else light_mode
         folder = "assets/country-flags" if self.is_flags else "assets/country-data"
         self._countries_path = pathlib.Path(__file__).parent / folder
 
@@ -143,7 +139,7 @@ class CountryGuesser:
         content = message.content.strip().lower()
 
         if options:
-            if not content in options:
+            if content not in options:
                 return
 
         return message, content

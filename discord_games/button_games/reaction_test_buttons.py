@@ -28,17 +28,16 @@ class ReactionButton(discord.ui.Button["ReactionView"]):
 
         if not self.edited or self.clicked:
             return await interaction.response.defer()
-        else:
-            end_time = time.perf_counter()
-            elapsed = end_time - self.view.game.start_time
+        end_time = time.perf_counter()
+        elapsed = end_time - self.view.game.start_time
 
-            game.embed.description = (
-                f"{interaction.user.mention} reacted first in `{elapsed:.2f}s` !"
-            )
-            await interaction.response.edit_message(embed=game.embed)
+        game.embed.description = (
+            f"{interaction.user.mention} reacted first in `{elapsed:.2f}s` !"
+        )
+        await interaction.response.edit_message(embed=game.embed)
 
-            self.clicked = True
-            return game.finished_event.set()
+        self.clicked = True
+        return game.finished_event.set()
 
 
 class ReactionView(BaseView):
@@ -109,7 +108,7 @@ class BetaReactionGame:
 
         self.embed = discord.Embed(
             title="Reaction Game",
-            description=f"Click the button below, when the button changes color!",
+            description="Click the button below, when the button changes color!",
             color=embed_color,
         )
         self.view = ReactionView(self, button_style=start_button_style, timeout=timeout)

@@ -33,32 +33,30 @@ class SlideButton(discord.ui.Button["SlideView"]):
             return await interaction.response.send_message(
                 "This is not your game!", ephemeral=True
             )
-        else:
-            num = int(self.label)
+        num = int(self.label)
 
-            if num not in game.beside_blank():
-                return await interaction.response.defer()
-            else:
-                pressed = game.get_item(num)
-                blank = game.get_item()
+        if num not in game.beside_blank():
+            return await interaction.response.defer()
+        pressed = game.get_item(num)
+        blank = game.get_item()
 
-                game.swap(pressed, blank)
+        game.swap(pressed, blank)
 
-                self.view.update_board(clear=True)
+        self.view.update_board(clear=True)
 
-                game.moves += 1
-                game.embed.set_field_at(
-                    0, name="\u200b", value=f"Moves: `{game.moves}`"
-                )
+        game.moves += 1
+        game.embed.set_field_at(
+            0, name="\u200b", value=f"Moves: `{game.moves}`"
+        )
 
-                if game.numbers == game.completed:
-                    self.view.disable_all()
-                    self.view.stop()
-                    game.embed.description = "**Congrats! You won!**"
+        if game.numbers == game.completed:
+            self.view.disable_all()
+            self.view.stop()
+            game.embed.description = "**Congrats! You won!**"
 
-                return await interaction.response.edit_message(
-                    embed=game.embed, view=self.view
-                )
+        return await interaction.response.edit_message(
+            embed=game.embed, view=self.view
+        )
 
 
 class SlideView(BaseView):
@@ -127,12 +125,11 @@ class NumberSlider:
             (nx, ny + 1),
         ]
 
-        data = [
+        return [
             self.numbers[i][j]
             for i, j in beside_item
             if i in range(self.count) and j in range(self.count)
         ]
-        return data
 
     def swap(self, pressed: tuple[int, int], blank: tuple[int, int]) -> None:
         ix, iy = pressed

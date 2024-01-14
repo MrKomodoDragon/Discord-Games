@@ -69,13 +69,12 @@ class CountryView(BaseView):
         self.user = user
 
     async def interaction_check(self, interaction: discord.Interaction) -> bool:
-        if interaction.user != self.user:
-            await interaction.response.send_message(
-                f"This is not your game!", ephemeral=True
-            )
-            return False
-        else:
+        if interaction.user == self.user:
             return True
+        await interaction.response.send_message(
+            "This is not your game!", ephemeral=True
+        )
+        return False
 
     @discord.ui.button(label="Make a guess!", style=discord.ButtonStyle.blurple)
     async def guess_button(self, interaction: discord.Interaction, _) -> None:
